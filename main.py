@@ -1,3 +1,4 @@
+import sys
 import pygame
 from constants import *
 from player import Player
@@ -15,32 +16,37 @@ def main():
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
 
-#CONTAINERS
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = updatable
     Player.containers = (updatable, drawable)
-
-#GENERATE
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    
     asteroid_field = AsteroidField()
-    dt = 0 # initializing delta time
+    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
-    while True: #keeps looping infinitely until you tell it to stop
-        for event in pygame.event.get(): # detects every event (mouse click, keyboard etc...)
-            if event.type == pygame.QUIT: # pygame.QUIT is the event that happens when you click the close button on the window
+    dt = 0
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 return
 
-        player.update(dt)
+        updatable.update(dt)
 
-        screen.fill("black")  # Or screen.fill((0, 0, 0)) - Fills the screen with black        
-        player.draw(screen)
-        pygame.display.flip()  # Update the display
+        for asteroid in asteroids:
+            if asteroid.collides_with(player):
+                print("Game over!")
+                sys.exit()
 
-        # time tracker/checker at the end of every loop iteration
-        #it will pause the game loop until 1/60th of a second has passed
-        dt = clock.tick(60) / 1000.0  # Convert milliseconds to seconds
-        # "delta time" is the time that passed from one frame to another
-        
+        screen.fill("black")
+
+        for obj in drawable:
+            obj.draw(screen)
+
+        pygame.display.flip()
+
+        # limit the framerate to 60 FPS
+        dt = clock.tick(60) / 1000
+
 
 if __name__ == "__main__":
     main()
